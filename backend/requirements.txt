@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+langchain-nvidia-ai-endpoints
+chromadb
+sentence-transformers
+pypdf
+python-docx
+httpx
+python-dotenv
+pydantic
