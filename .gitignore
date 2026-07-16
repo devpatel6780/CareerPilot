@@ -8,3 +8,4 @@ node_modules/
 .chroma/
 chroma_db/
 ai-career-agent-build-spec.md
+CLAUDE.md
