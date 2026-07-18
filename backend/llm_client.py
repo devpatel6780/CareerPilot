@@ -14,7 +14,7 @@ from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-DEFAULT_MODEL = "meta/llama-3.1-8b-instruct"
+DEFAULT_MODEL = "meta/llama-3.1-70b-instruct"
 
 
 class LLMClient:
@@ -26,7 +26,13 @@ class LLMClient:
         self.model = model
         self.max_retries = max_retries
         self.backoff_seconds = backoff_seconds
-        self._client = ChatNVIDIA(model=self.model, api_key=self.api_key)
+        self._client = ChatNVIDIA(
+            model=self.model,
+            api_key=self.api_key,
+            max_completion_tokens=2048,
+            temperature=0,
+            seed=0,
+        )
 
     def generate(self, prompt: str, schema: dict | None = None):
         client = self._client.with_structured_output(schema) if schema else self._client

@@ -23,7 +23,7 @@ before the next starts.
 | Phase | Description | Status |
 |---|---|---|
 | 0 | Foundation — repo scaffold, SQLite schema, LLM client, health check | ✅ Done |
-| 1 | Resume Analysis Agent — PDF/DOCX → structured JSON | ⬜ Not started |
+| 1 | Resume Analysis Agent — PDF/DOCX → structured JSON | ✅ Done |
 | 2 | Job Ingestion Agent — Greenhouse & Lever APIs → structured JSON | ⬜ Not started |
 | 3 | Matching & Ranking Agent — fit scoring + golden-set eval harness | ⬜ Not started |
 | 4 | Resume Tailoring Agent — rewrite + truthfulness guard | ⬜ Not started |
@@ -67,7 +67,7 @@ only the orchestrator sequences them.
 
 ## Running locally
 
-Currently only the backend foundation (Phase 0) exists.
+Backend foundation (Phase 0) and the Resume Analysis Agent (Phase 1) exist so far.
 
 ```bash
 cd backend
@@ -86,6 +86,11 @@ curl http://localhost:8000/health
 ```
 
 `/health` should return `{"status": "ok"}`.
+
+Upload a resume (PDF or DOCX) to get back its structured profile:
+```bash
+curl.exe -F "file=@path/to/resume.pdf" http://localhost:8000/resume/upload
+```
 
 ## Data model
 
