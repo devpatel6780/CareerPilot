@@ -24,7 +24,7 @@ before the next starts.
 |---|---|---|
 | 0 | Foundation — repo scaffold, SQLite schema, LLM client, health check | ✅ Done |
 | 1 | Resume Analysis Agent — PDF/DOCX → structured JSON | ✅ Done |
-| 2 | Job Ingestion Agent — Greenhouse & Lever APIs → structured JSON | ⬜ Not started |
+| 2 | Job Ingestion Agent — Greenhouse & Lever APIs → structured JSON | ✅ Done |
 | 3 | Matching & Ranking Agent — fit scoring + golden-set eval harness | ⬜ Not started |
 | 4 | Resume Tailoring Agent — rewrite + truthfulness guard | ⬜ Not started |
 | 5 | Cover Letter Agent | ⬜ Not started |
@@ -67,7 +67,7 @@ only the orchestrator sequences them.
 
 ## Running locally
 
-Backend foundation (Phase 0) and the Resume Analysis Agent (Phase 1) exist so far.
+Backend foundation (Phase 0), the Resume Analysis Agent (Phase 1), and the Job Ingestion Agent (Phase 2) exist so far.
 
 ```bash
 cd backend
@@ -90,6 +90,13 @@ curl http://localhost:8000/health
 Upload a resume (PDF or DOCX) to get back its structured profile:
 ```bash
 curl.exe -F "file=@path/to/resume.pdf" http://localhost:8000/resume/upload
+```
+
+Ingest jobs from a real company's Greenhouse or Lever board, then list them:
+```bash
+curl.exe -X POST "http://localhost:8000/jobs/ingest/greenhouse/{company}?limit=20"
+curl.exe -X POST "http://localhost:8000/jobs/ingest/lever/{company}?limit=20"
+curl.exe http://localhost:8000/jobs
 ```
 
 ## Data model
