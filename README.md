@@ -99,6 +99,11 @@ curl.exe -X POST "http://localhost:8000/jobs/ingest/lever/{company}?limit=20"
 curl.exe http://localhost:8000/jobs
 ```
 
+Score fit between a resume and a job (both must already be ingested):
+```bash
+curl.exe -X POST http://localhost:8000/match -H "Content-Type: application/json" -d "{\"resume_id\": 1, \"job_id\": 1}"
+```
+
 ## Data model
 
 **Resume Schema** (structured output of the Resume Analysis Agent, Phase 1):
@@ -131,14 +136,34 @@ curl.exe http://localhost:8000/jobs
 `applications` — each with an `id` and `created_at`, with foreign keys
 linking match → resume + job, and application → match + resume_version.
 
+## Matching Agent eval (Phase 3)
+
+`POST /match` scores a resume/job pair with a combined score: 40% embedding
+similarity (cosine, between mean-pooled ChromaDB vectors for that resume and
+job) + 60% LLM-judged fit score (0-100, with structured `strengths`/`gaps`/
+`missing_skills`). Weights live as constants in `agents/matching/graph.py`.
+
+To evaluate matching quality against your own judgment:
+
+1. Ingest a resume and a mix of relevant/irrelevant jobs so you have real
+   `resume_id`/`job_id` pairs to label.
+2. Copy `eval/golden_set.example.json` to `eval/golden_set.json` and, for
+   15-20 real pairs, fill in `human_label` (`good_fit`/`weak_fit`/`poor_fit`)
+   and optionally `human_missing_skills` (skills you can see the job needs
+   that the resume doesn't have).
+3. Run the eval script:
+   ```bash
+   backend/.venv/Scripts/python eval/run_matching_eval.py
+   ```
+   It reports Spearman correlation between the system's score and your
+   labels, precision/recall on missing-skill detection vs. what you listed,
+   and a 3-class confusion matrix (score thresholds: ≥70 good, ≥40 weak,
+   else poor — see `GOOD_FIT_THRESHOLD`/`WEAK_FIT_THRESHOLD` in the script).
+   Each run is saved as a timestamped JSON file under `eval/results/`, so
+   later runs after a prompt/weight change are diffable against earlier ones.
+
 ## Roadmap detail
 
-- **Matching Agent (Phase 3):** hand-labeled golden set of 15-20 real
-  resume/JD pairs (good-fit / weak-fit / poor-fit), scored via embedding
-  similarity + LLM-judged fit with structured rationale. `eval/` will hold
-  the eval script reporting Spearman correlation against human labels,
-  precision/recall on missing-skill detection, and a confusion matrix —
-  with results timestamped for regression tracking across prompt changes.
 - **Tailoring Agent (Phase 4):** two-step chain — rewrite bullets to close
   keyword/skill gaps, then a separate truthfulness-guard LLM call that flags
   (not silently deletes) any claim not traceable to the original resume.
