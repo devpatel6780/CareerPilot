@@ -49,3 +49,26 @@ def embed_resume(resume_id: int, structured: dict) -> None:
         documents=documents,
         metadatas=[{"resume_id": resume_id} for _ in documents],
     )
+
+
+def embed_job(job_id: int, structured: dict) -> None:
+    """Embeds a job's requirements/skills/responsibilities into the shared
+    'jobs' ChromaDB collection (all jobs share one collection, unlike the
+    per-resume-version collections), tagged with job_id.
+    """
+    documents = []
+    for field in ("requirements", "required_skills", "nice_to_have_skills", "responsibilities"):
+        documents.extend(structured.get(field, []))
+
+    if not documents:
+        return
+
+    collection = get_client().get_or_create_collection(
+        name="jobs",
+        embedding_function=get_embedding_fn(),
+    )
+    collection.add(
+        ids=[f"job_{job_id}_{i}" for i in range(len(documents))],
+        documents=documents,
+        metadatas=[{"job_id": job_id, "company": structured.get("company", "")} for _ in documents],
+    )
