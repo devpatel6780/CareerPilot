@@ -6,10 +6,15 @@ from fastapi import APIRouter, HTTPException, UploadFile
 
 from agents.resume_analysis.extract import UnsupportedResumeFormat, extract_text
 from agents.resume_analysis.graph import analyze_resume
-from db.resumes import insert_resume
+from db.resumes import insert_resume, list_resumes
 from vector_store import embed_resume
 
 router = APIRouter(prefix="/resume", tags=["resume"])
+
+
+@router.get("")
+def get_resumes():
+    return {"resumes": list_resumes()}
 
 
 @router.post("/upload")

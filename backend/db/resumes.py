@@ -37,3 +37,22 @@ def get_resume(resume_id: int) -> dict | None:
         "raw_text": row[2],
         "structured": json.loads(row[3]) if row[3] else None,
     }
+
+
+def list_resumes() -> list[dict]:
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        rows = conn.execute(
+            "SELECT id, created_at, structured_json FROM resumes ORDER BY id DESC"
+        ).fetchall()
+    finally:
+        conn.close()
+
+    return [
+        {
+            "id": row[0],
+            "created_at": row[1],
+            "structured": json.loads(row[2]) if row[2] else None,
+        }
+        for row in rows
+    ]
